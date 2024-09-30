@@ -1,30 +1,50 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:samples_downloader/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  // Testa se o título da AppBar está correto
+  testWidgets('AppBar title is displayed correctly', (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp());
+    expect(find.text('Samples Downloader'), findsOneWidget);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  // Testa se o Drawer é aberto ao clicar no ícone de menu
+  testWidgets('Drawer opens when menu button is tapped', (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp());
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle(); // Espera a animação do Drawer
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verifica se o item 'Pessoal' está visível
+    expect(find.text('Pessoal'), findsOneWidget);
+    expect(find.text('Atividades'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  // Testa se a lista de arquivos está sendo exibida
+  testWidgets('File list is displayed correctly', (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp());
+
+    // Verifica a presença dos arquivos/pastas
+    expect(find.text('Classroom'), findsOneWidget);
+  });
+
+  // Testa se o FloatingActionButton está presente e clicável
+  testWidgets('FloatingActionButton can be tapped', (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp());
+
+    // Verifica se o botão de ação flutuante está presente
+    expect(find.byType(FloatingActionButton), findsOneWidget);
+
+    // Simula um toque no FloatingActionButton
+    await tester.tap(find.byType(FloatingActionButton));
+    // Adicionar aqui as verificações adicionais para quando o botão for clicado
+  });
+
+  // Testa se o ícone de mais opções aparece para cada item na lista de arquivos
+  testWidgets('More options icon is present for each file', (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp());
+
+    // Verifica se o ícone de mais opções (três pontos) está presente para todos os arquivos
+    expect(find.byIcon(Icons.more_vert), findsNWidgets(1)); // Deve haver 1 itens com esse ícone
   });
 }

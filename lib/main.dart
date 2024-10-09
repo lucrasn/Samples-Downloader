@@ -1,39 +1,138 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Google Drive Clone',
+      title: 'Samples Downloader',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: DriveCloneScreen(),
+      home: const DriveCloneScreen(),
     );
   }
 }
 
 class DriveCloneScreen extends StatefulWidget {
+  const DriveCloneScreen({super.key});
+
   @override
   _DriveCloneScreenState createState() => _DriveCloneScreenState();
 }
 
 class _DriveCloneScreenState extends State<DriveCloneScreen> {
-  String filter = 'Tipo';
   String searchQuery = '';
-  bool isHovered = false;
 
+  List<int> selectedIndices = [];
   List<FileItem> files = [
-    FileItem(name: 'Colab Notebooks - Algoritmos', owner: 'eu', date: '7 de mar. de 2024', size: '—'),
-    FileItem(name: 'Roteiro Simplificado - Coerência', owner: 'eu', date: '25 de mai. de 2024', size: '3 KB'),
-    FileItem(name: 'INTELIGÊNCIA ARTIFICIAL NA GAMIFI...', owner: 'eu', date: '6 de jun. de 2024', size: '370 KB'),
-    // Adicione mais arquivos conforme necessário
+    FileItem(
+      name: 'METODOLOGIA CIENTÍFICA - GERAL - 2023-2',
+      icon: Icons.insert_drive_file,
+      modifiedDate: '07/10/2024',
+      owner: 'eu',
+    ),
+    FileItem(
+      name: 'Planilha de notas Veterinária - 2024-2',
+      icon: Icons.insert_drive_file,
+      modifiedDate: '06/10/2024',
+      owner: 'eu',
+    ),
+    FileItem(
+      name: 'Lista de exercício de N1 (Revisão da Prova)- 2024-2 (respostas)',
+      icon: Icons.insert_drive_file,
+      modifiedDate: '05/10/2024',
+      owner: 'eu',
+    ),
+    FileItem(
+      name: 'Planilha de notas Odontologia - 2024-2 - A',
+      icon: Icons.insert_drive_file,
+      modifiedDate: '04/10/2024',
+      owner: 'eu',
+    ),
+    FileItem(
+      name: 'Planilha de notas Odontologia - 2024-2 - B',
+      icon: Icons.insert_drive_file,
+      modifiedDate: '04/10/2024',
+      owner: 'eu',
+    ),
+    FileItem(
+      name: 'Horário Recursos Humanos 2024-1',
+      icon: Icons.insert_drive_file,
+      modifiedDate: '01/10/2024',
+      owner: 'eu',
+    ),
   ];
+
+  // Filtra os arquivos com base na consulta de pesquisa
+  List<FileItem> get filteredFiles {
+    if (searchQuery.isEmpty) {
+      return files;
+    } else {
+      return files
+          .where((file) =>
+          file.name.toLowerCase().contains(searchQuery.toLowerCase()))
+          .toList();
+    }
+  }
+
+  void _handleClickOutside() {
+    setState(() {
+      selectedIndices.clear(); // Limpa a seleção ao clicar fora da lista
+    });
+  }
+
+  void _handleItemClick(int index, bool? selected) {
+    setState(() {
+      if (selected == true) {
+        selectedIndices.add(index); // Adiciona item à seleção
+      } else {
+        selectedIndices.remove(index); // Remove item da seleção
+      }
+    });
+  }
+
+  // Função para renomear um arquivo
+  void _renameItem(int index) {
+    TextEditingController renameController = TextEditingController();
+    renameController.text = files[index].name;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Renomear item'),
+          content: TextField(
+            controller: renameController,
+            decoration: const InputDecoration(hintText: 'Novo nome'),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Renomear'),
+              onPressed: () {
+                setState(() {
+                  files[index].name = renameController.text; // Atualiza o nome do item
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,193 +140,131 @@ class _DriveCloneScreenState extends State<DriveCloneScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
-        leading: Icon(Icons.menu, color: Colors.black),
-        title: Container(
-          height: 40,
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: 'Pesquisar no Drive',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              fillColor: Colors.grey[200],
-              filled: true,
-              prefixIcon: Icon(Icons.search, color: Colors.black),
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(50), // Deixa o campo arredondado
             ),
-            onChanged: (value) {
-              setState(() {
-                searchQuery = value;
-              });
-            },
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'Pesquisar amostras',
+                border: InputBorder.none,
+                prefixIcon: Icon(Icons.search, color: Colors.black),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
+            ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.grid_view, color: Colors.black),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.settings, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
-      body: Row(
-        children: [
-          // Sidebar
-          NavigationDrawer(),
-          // Main content
-          Expanded(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      DropdownButton<String>(
-                        value: filter,
-                        items: <String>['Tipo', 'Pessoas', 'Modificação']
-                            .map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            filter = newValue!;
-                          });
-                        },
+      body: GestureDetector(
+        onTap: _handleClickOutside, // Limpa a seleção ao clicar fora da lista
+        child: Column(
+          children: [
+            const Divider(height: 1, color: Colors.grey),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: SizedBox(
+                      width: constraints.maxWidth, // Força a tabela a ocupar toda a largura
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Nome')),
+                          DataColumn(label: Text('Criado em')),
+                          DataColumn(label: Text('Proprietário')),
+                          DataColumn(label: Text('Opções')),
+                        ],
+                        rows: List<DataRow>.generate(
+                          filteredFiles.length,
+                              (index) => DataRow(
+                            selected: selectedIndices.contains(index),
+                            onSelectChanged: (selected) {
+                              _handleItemClick(index, selected); // Seleciona ou desmarca o item clicado
+                            },
+                            cells: [
+                              DataCell(Row(
+                                children: [
+                                  Icon(filteredFiles[index].icon, color: Colors.green),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      filteredFiles[index].name,
+                                      overflow: TextOverflow.ellipsis, // Abreviação do nome do arquivo
+                                    ),
+                                  ),
+                                ],
+                              )),
+                              DataCell(Text(filteredFiles[index].modifiedDate)),
+                              DataCell(Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: Colors.grey[300],
+                                    child: const Icon(Icons.person, color: Colors.white, size: 16),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(filteredFiles[index].owner),
+                                ],
+                              )),
+                              DataCell(PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert), // Três pontinhos verticais
+                                onSelected: (value) {
+                                  if (value == 'Renomear') {
+                                    _renameItem(index); // Chama a função de renomear
+                                  }
+                                  // Outras opções podem ser tratadas aqui
+                                },
+                                itemBuilder: (BuildContext context) =>
+                                <PopupMenuEntry<String>>[
+                                  const PopupMenuItem<String>(
+                                    value: 'Baixar',
+                                    child: ListTile(
+                                      leading: Icon(Icons.download),
+                                      title: Text('Baixar'),
+                                    ),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'Renomear',
+                                    child: ListTile(
+                                      leading: Icon(Icons.drive_file_rename_outline),
+                                      title: Text('Renomear'),
+                                    ),
+                                  ),
+                                ],
+                              )),
+                            ],
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.sort),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(height: 1, color: Colors.grey),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: files.length,
-                    itemBuilder: (context, index) {
-                      return FileItemWidget(file: files[index]);
-                    },
-                  ),
-                ),
-              ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NavigationDrawer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 240,
-      color: Colors.grey[100],
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          SizedBox(height: 8),
-          ListTile(
-            leading: Icon(Icons.folder, color: Colors.blue),
-            title: Text('Meu Drive', style: TextStyle(fontSize: 16)),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.access_time, color: Colors.blue),
-            title: Text('Recentes', style: TextStyle(fontSize: 16)),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.star, color: Colors.blue),
-            title: Text('Com estrela', style: TextStyle(fontSize: 16)),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.delete, color: Colors.blue),
-            title: Text('Lixeira', style: TextStyle(fontSize: 16)),
-            onTap: () {},
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 class FileItem {
-  final String name;
+  String name;
+  final IconData icon;
+  final String modifiedDate;
   final String owner;
-  final String date;
-  final String size;
 
   FileItem({
     required this.name,
+    required this.icon,
+    required this.modifiedDate,
     required this.owner,
-    required this.date,
-    required this.size,
   });
-}
-
-class FileItemWidget extends StatefulWidget {
-  final FileItem file;
-
-  const FileItemWidget({Key? key, required this.file}) : super(key: key);
-
-  @override
-  _FileItemWidgetState createState() => _FileItemWidgetState();
-}
-
-class _FileItemWidgetState extends State<FileItemWidget> {
-  bool isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          isHovered = true;
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          isHovered = false;
-        });
-      },
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(widget.file.name, style: TextStyle(fontWeight: FontWeight.w500)),
-        subtitle: Text(
-          'Proprietário: ${widget.file.owner}   Modificação: ${widget.file.date}',
-          style: TextStyle(fontSize: 14),
-        ),
-        trailing: isHovered
-            ? Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.download),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.star),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.more_vert),
-              onPressed: () {},
-            ),
-          ],
-        )
-            : Text(widget.file.size, style: TextStyle(fontSize: 14)),
-      ),
-    );
-  }
 }

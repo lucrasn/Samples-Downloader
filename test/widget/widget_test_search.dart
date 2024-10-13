@@ -69,5 +69,18 @@ void main() {
           findsOneWidget);
       expect(find.text('Horário Recursos Humanos 2024-1'), findsOneWidget);
     });
+
+    testWidgets('Funcionamento da inserção no campo de busca',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+
+      var textField = find.byType(TextField);
+
+      // Insere um texto
+      await tester.enterText(textField, 'Nova busca');
+
+      // Verifica se o texto foi inserido corretamente
+      expect(find.text('Nova busca'), findsOneWidget);
+    });
   });
 }

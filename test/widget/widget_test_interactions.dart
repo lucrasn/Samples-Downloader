@@ -4,7 +4,8 @@ import 'package:samples_downloader/main.dart';
 
 void main() {
   group('Testes de Interações do SamplesDownloader', () {
-    testWidgets('Renomear arquivo exibe o diálogo e renomeia corretamente', (WidgetTester tester) async {
+    testWidgets('Renomear arquivo exibe o diálogo e renomeia corretamente',
+        (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1600, 1200);
       tester.view.devicePixelRatio = 1.0;
       await tester.pumpWidget(const MyApp());
@@ -67,6 +68,21 @@ void main() {
         expect(find.byType(DataRow), findsOneWidget);
       }
     });
-  });
 
+    testWidgets('Testa a opção de download', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1600, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      await tester.pumpWidget(const MyApp());
+
+      if (find.byIcon(Icons.more_vert).evaluate().isNotEmpty) {
+        await tester.ensureVisible(find.byIcon(Icons.more_vert).first);
+      }
+      if (find.byIcon(Icons.more_vert).evaluate().isNotEmpty) {
+        await tester.tap(find.byIcon(Icons.more_vert).first);
+      }
+      await tester.pumpAndSettle();
+
+      expect(find.text('Baixar'), findsOneWidget);
+    });
+  });
 }
